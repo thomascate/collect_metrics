@@ -17,6 +17,8 @@ execute 'populate-instance-info' do
   action :nothing
 end
 
+# Set up default System level metrics such as mem/disk/cpu etc
+# http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/mon-scripts.html
 package %w( unzip perl-Switch perl-DateTime perl-Sys-Syslog perl-LWP-Protocol-https perl-Digest-SHA )
 
 directory '/opt/cloudwatch_monitoring'
