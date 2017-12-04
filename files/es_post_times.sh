@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# TODO: Update to get this data from A2 ingestor
 source /home/centos/instance_info
 
 # This script is intended to run every 5 minutes from cron.
