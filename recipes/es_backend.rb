@@ -17,6 +17,23 @@ cron 'es_heap' do
   command '/home/centos/es_heap.sh' 
 end
 
+cookbook_file '/home/centos/es_threadpool.sh' do
+ source 'es_threadpool.sh'
+ user 'centos'
+ mode '755'
+ action :create
+end
+
+cron 'es_threadpool' do
+  minute '*'
+  hour '*'
+  weekday '*'
+  month '*'
+  user 'centos'
+  home '/home/centos'
+  command '/home/centos/es_threadpool.sh'
+end
+
 cookbook_file '/home/centos/disk_queue_size.sh' do
  source 'disk_queue_size.sh'
  user 'centos'
