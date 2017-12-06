@@ -3,7 +3,7 @@ source /home/centos/instance_info
 
 hostname=`hostname`
 
-cluster_health=`curl -s http://$hostname:9200/_cluster/health | /home/centos/jq-linux64 '.number_of_nodes, .active_primary_shards, .active_shards, .relocating_shards, .unassigned_shards, .delayed_unassigned_shards, .number_of_pending_tasks, .number_of_in_flight_fetch, .task_max_waiting_in_queue_millis, .initializing_shards, .active_shards_percent_as_number'`
+cluster_health=`curl -s http://$hostname:10141/_cluster/health | /home/centos/jq-linux64 '.number_of_nodes, .active_primary_shards, .active_shards, .relocating_shards, .unassigned_shards, .delayed_unassigned_shards, .number_of_pending_tasks, .number_of_in_flight_fetch, .task_max_waiting_in_queue_millis, .initializing_shards, .active_shards_percent_as_number'`
 
 es_metrics[0]=`echo $cluster_health | awk '{print $1}'`
 es_metrics[1]=`echo $cluster_health | awk '{print $2}'`

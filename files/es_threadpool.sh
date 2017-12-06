@@ -4,7 +4,7 @@ source /home/centos/instance_info
 
 hostname=`hostname`
 
-command=`curl -s -XGET "http://$hostname:9200/_nodes/_local/stats/thread_pool" | /home/centos/jq-linux64 '(.. | .thread_pool?.index.threads | numbers) , (.. | .thread_pool?.index.queue | numbers) , (.. | .thread_pool?.index.active | numbers) , (.. | .thread_pool?.index.rejected | numbers) , (.. | .thread_pool?.index.largest | numbers) , (.. | .thread_pool?.index.completed | numbers)'`
+command=`curl -s -XGET "http://$hostname:10141/_nodes/_local/stats/thread_pool" | /home/centos/jq-linux64 '(.. | .thread_pool?.index.threads | numbers) , (.. | .thread_pool?.index.queue | numbers) , (.. | .thread_pool?.index.active | numbers) , (.. | .thread_pool?.index.rejected | numbers) , (.. | .thread_pool?.index.largest | numbers) , (.. | .thread_pool?.index.completed | numbers)'`
 
 mapfile -t es_metrics <<<"$command"
 
