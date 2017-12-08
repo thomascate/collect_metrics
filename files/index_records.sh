@@ -1,5 +1,5 @@
 #!/bin/bash
-source /home/centos/collect_metrics/files/instance_info
+source /home/centos/instance_info
 
 hostname=`hostname`
 
@@ -22,11 +22,11 @@ node_records=0
 compliance_records=0
 
 for index in $( echo $node_indices | awk '{split($0,a,/\s/)} END { for (key in a) { print a[key] } }' ); do
-  node_records=$(awk "BEGIN {print `curl -s -XGET http://$hostname:10141/$index/_count | /home/centos/collect_metrics/files/jq-linux64 '.count'`+$node_records; exit}")
+  node_records=$(awk "BEGIN {print `curl -s -XGET http://$hostname:10141/$index/_count | /home/centos/jq-linux64 '.count'`+$node_records; exit}")
 done
 
 for index in $(echo $compliance_indices | awk '{split($0,a,/\s/)} END { for (key in a) { print a[key] } }'); do
-  compliance_records=$(awk "BEGIN {print `curl -s -XGET http://$hostname:10141/$index/_count | /home/centos/collect_metrics/files/jq-linux64 '.count'`+$compliance_records; exit}")
+  compliance_records=$(awk "BEGIN {print `curl -s -XGET http://$hostname:10141/$index/_count | /home/centos/jq-linux64 '.count'`+$compliance_records; exit}")
 done
 
 total_records=$(awk "BEGIN {print $node_records+$compliance_records; exit}")
@@ -35,11 +35,11 @@ node_index_bytes=0
 compliance_index_bytes=0
 
 for index in $( echo $node_indices | awk '{split($0,a,/\s/)} END { for (key in a) { print a[key] } }' ); do
-  node_index_bytes=$(awk "BEGIN {print `curl -s -XGET http://$hostname:10141/$index/_stats/store?pretty | /home/centos/collect_metrics/files/jq-linux64 '._all.total.store.size_in_bytes'`+$node_index_bytes; exit}")
+  node_index_bytes=$(awk "BEGIN {print `curl -s -XGET http://$hostname:10141/$index/_stats/store?pretty | /home/centos/jq-linux64 '._all.total.store.size_in_bytes'`+$node_index_bytes; exit}")
 done
 
 for index in $(echo $compliance_indices | awk '{split($0,a,/\s/)} END { for (key in a) { print a[key] } }'); do
-  compliance_index_bytes=$(awk "BEGIN {print `curl -s -XGET http://$hostname:10141/$index/_stats/store?pretty | /home/centos/collect_metrics/files/jq-linux64 '._all.total.store.size_in_bytes'`+$compliance_index_bytes; exit}")
+  compliance_index_bytes=$(awk "BEGIN {print `curl -s -XGET http://$hostname:10141/$index/_stats/store?pretty | /home/centos/jq-linux64 '._all.total.store.size_in_bytes'`+$compliance_index_bytes; exit}")
 done
 
 total_bytes=$(awk "BEGIN {print $node_index_bytes+$compliance_index_bytes; exit}")
