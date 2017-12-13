@@ -27,14 +27,18 @@ aws cloudwatch put-metric-data $per_host_options --metric-name 5MinuteAveragePos
 GATEWAY_LEGACY_RPC_CALLS=$(echo "$LOGS_LAST_5MIN" | grep automate-gateway | grep "rpc call" | grep -c ProcessLegacyEvent)
 aws cloudwatch put-metric-data $per_host_options --metric-name LegacyEvents --unit Count --value ${GATEWAY_LEGACY_RPC_CALLS}
 
-# Get the number of ChefRun messages ingested (by the Ingest pipeline)
-INGESTED_MESSAGES=$(echo "$LOGS_LAST_5MIN" | grep -c "ChefRun ingested successfully")
+LOGS_INGEST_TIME=$(echo "$LOGS_LAST_5MIN" | grep metric | grep type=ingest_time)
+
+# Get the number of ChefRun messages ingested and failed (by the Ingest pipeline)
+INGESTED_MESSAGES=$(echo "$LOGS_INGEST_TIME" | grep -c "ChefRun ingested successfully")
+FAILED_MESSAGES=$(echo "$LOGS_LAST_5MIN" | grep -c "Unable to ingest ChefRun message")
 aws cloudwatch put-metric-data $per_host_options --metric-name SuccessIngestedMessages --unit Count --value ${INGESTED_MESSAGES}
+aws cloudwatch put-metric-data $per_host_options --metric-name FailedIngestMessages --unit Count --value ${FAILED_MESSAGES}
 
 # Average Ingest Pipeline time (How long does a message goes through the ingest pipeline?)
-INGEST_PIPELINE_PROCESSING_TIME=$(echo "$LOGS_LAST_5MIN" | grep "ChefRun ingested successfully" | awk -F= '{ms+=$NF} END {print ms/NR}')
+INGEST_PIPELINE_PROCESSING_TIME=$(echo "$LOGS_INGEST_TIME" | grep "ChefRun ingested successfully" | awk '{gsub(/ms/, "")} {print $(NF-1)}' |cut -d= -f2 | awk '{sum+=$1} END {print sum/NR}')
 aws cloudwatch put-metric-data $per_host_options --metric-name 5MinuteAverageIngestPipelineTime --unit Milliseconds --value ${INGEST_PIPELINE_PROCESSING_TIME}
 
 # Average ES insertion time (How long does ES takes to insert documents?)
-ES_DOC_INSERT_TIME=$(echo "$LOGS_LAST_5MIN"| grep doc_insert| awk '{gsub(/ms/, "")} {print $(NF-1)}' |cut -d= -f2 | awk '{sum+=$1} END {print sum/NR}')
+ES_DOC_INSERT_TIME=$(echo "$LOGS_INGEST_TIME" | awk '{gsub(/ms/, "")} {print $(NF-1)}' |cut -d= -f2 | awk '{sum+=$1} END {print sum/NR}')
 aws cloudwatch put-metric-data $per_host_options --metric-name 5MinuteAverageESDocInsertTime --unit Milliseconds --value ${ES_DOC_INSERT_TIME}
