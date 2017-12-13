@@ -20,7 +20,7 @@ aws cloudwatch put-metric-data $per_host_options --metric-name 4xxStatuses --uni
 aws cloudwatch put-metric-data $per_host_options --metric-name 5xxStatuses --unit Count --value ${COUNT_5XX}
 
 # Get average DataCollector POST times in seconds
-DC_POST_REQUEST_TIME=`echo "$data_collector_logs" | awk '{gsub(/ms/, "")} {sum22+=$22} END {print (sum22/NR)/1000.0}'`
+DC_POST_REQUEST_TIME=$(echo "$data_collector_logs" | awk '{gsub(/ms/, "")} {sum22+=$22} END {print (sum22/NR)/1000.0}')
 aws cloudwatch put-metric-data $per_host_options --metric-name 5MinuteAveragePostRequestTime --unit Seconds --value ${DC_POST_REQUEST_TIME}
 
 # Get the number of RPC Calls received through the legacy-endpoint (by the Gateway)
