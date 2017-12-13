@@ -28,8 +28,12 @@ GATEWAY_LEGACY_RPC_CALLS=$(echo "$LOGS_LAST_5MIN" | grep automate-gateway | grep
 aws cloudwatch put-metric-data $per_host_options --metric-name LegacyEvents --unit Count --value ${GATEWAY_LEGACY_RPC_CALLS}
 
 # Get the number of ChefRun messages ingested (by the Ingest pipeline)
-INGESTED_MESSAGES=$(echo "$LOGS_LAST_5MIN" | grep -c "Chef run ingested successfully")
+INGESTED_MESSAGES=$(echo "$LOGS_LAST_5MIN" | grep -c "ChefRun ingested successfully")
 aws cloudwatch put-metric-data $per_host_options --metric-name SuccessIngestedMessages --unit Count --value ${INGESTED_MESSAGES}
+
+# Average Ingest Pipeline time (How long does a message goes through the ingest pipeline?)
+INGEST_PIPELINE_PROCESSING_TIME=$(echo "$LOGS_LAST_5MIN" | grep "ChefRun ingested successfully" | awk -F= '{ms+=$NF} END {print ms/NR}')
+aws cloudwatch put-metric-data $per_host_options --metric-name 5MinuteAverageIngestPipelineTime --unit Milliseconds --value ${INGEST_PIPELINE_PROCESSING_TIME}
 
 # Average ES insertion time (How long does ES takes to insert documents?)
 ES_DOC_INSERT_TIME=$(echo "$LOGS_LAST_5MIN"| grep doc_insert| awk '{gsub(/ms/, "")} {print $(NF-1)}' |cut -d= -f2 | awk '{sum+=$1} END {print sum/NR}')
