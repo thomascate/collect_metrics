@@ -9,10 +9,10 @@ LOGS_LAST_5MIN=$(journalctl --since "5 minutes ago" -u chef-automate)
 
 # Count HTTP codes
 data_collector_logs=$(echo "$LOGS_LAST_5MIN" | grep data-collector | grep POST)
-COUNT_2XX=`echo "$data_collector_logs" | awk '{print $15}' | grep -c "^2"`
-COUNT_3XX=`echo "$data_collector_logs" | awk '{print $15}' | grep -c "^3"`
-COUNT_4XX=`echo "$data_collector_logs" | awk '{print $15}' | grep -c "^4"`
-COUNT_5XX=`echo "$data_collector_logs" | awk '{print $15}' | grep -c "^5"`
+COUNT_2XX=`echo "$data_collector_logs" | awk '{print $13}' | grep -c "^2"`
+COUNT_3XX=`echo "$data_collector_logs" | awk '{print $13}' | grep -c "^3"`
+COUNT_4XX=`echo "$data_collector_logs" | awk '{print $13}' | grep -c "^4"`
+COUNT_5XX=`echo "$data_collector_logs" | awk '{print $13}' | grep -c "^5"`
 
 aws cloudwatch put-metric-data $per_host_options --metric-name 2xxStatuses --unit Count --value ${COUNT_2XX}
 aws cloudwatch put-metric-data $per_host_options --metric-name 3xxStatuses --unit Count --value ${COUNT_3XX}
