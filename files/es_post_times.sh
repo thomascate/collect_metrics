@@ -37,11 +37,11 @@ LOGS_INGEST_TIME=$(echo "$LOGS_METRICS" | grep type=ingest_time)
 LOGS_ES_DOC_INSERT_TIME=$(echo "$LOGS_METRICS" | grep type=doc_insert)
 
 # Get the number of ChefRun messages ingested and failed (by the Ingest pipeline)
-INGESTED_MESSAGES=$(echo "$LOGS_INGEST_TIME" | grep -c "ChefRun ingested successfully")
-FAILED_MESSAGES=$(echo "$LOGS_INGEST_TIME" | grep -c "Unable to ingest ChefRun message")
+INGESTED_MESSAGES=$(echo "$LOGS_INGEST_TIME" | grep -c "Message ingested successfully")
+FAILED_MESSAGES=$(echo "$LOGS_INGEST_TIME" | grep -c "Unable to ingest message")
 # TODO: Add official "Unsupported Messages"
 # @afiune: Currently we are not ingesting the 'run_start' messages, fix this when we DO ingest them
-UNSUPPORTED_MESSAGES=$(echo "$LOGS_LAST_5MIN" | grep message_type | grep -c "Supported message")
+UNSUPPORTED_MESSAGES=$(echo "$LOGS_LAST_5MIN" | grep message_type | grep -c "Unsupported message")
 UNKNOWN_MESSAGES=$(expr $GATEWAY_LEGACY_RPC_CALLS - $INGESTED_MESSAGES - $UNSUPPORTED_MESSAGES - $FAILED_MESSAGES)
 aws cloudwatch put-metric-data $per_host_options --metric-name SuccessIngestedMessages --unit Count --value ${INGESTED_MESSAGES}
 aws cloudwatch put-metric-data $per_host_options --metric-name FailedIngestMessages --unit Count --value ${FAILED_MESSAGES}
@@ -49,8 +49,10 @@ aws cloudwatch put-metric-data $per_host_options --metric-name UnsupportedIngest
 aws cloudwatch put-metric-data $per_host_options --metric-name UnknownIngestMessages --unit Count --value ${UNKNOWN_MESSAGES}
 
 # Average Ingest Pipeline time (How long does a message goes through the ingest pipeline?)
-INGEST_PIPELINE_PROCESSING_TIME=$(echo "$LOGS_INGEST_TIME" | grep "ChefRun ingested successfully" | awk '{gsub(/ms/, "")} {print $(NF-1)}' |cut -d= -f2 | awk '{sum+=$1} END {print sum/NR}')
-aws cloudwatch put-metric-data $per_host_options --metric-name 5MinuteAverageIngestPipelineTime --unit Milliseconds --value ${INGEST_PIPELINE_PROCESSING_TIME}
+INGEST_PIPELINE_TIME_CHEF_ACTION=$(echo "$LOGS_INGEST_TIME" | grep message=ChefAction | grep "Message ingested successfully" | awk '{gsub(/ms/, "")} {print $(NF-1)}' |cut -d= -f2 | awk '{sum+=$1} END {print sum/NR}')
+INGEST_PIPELINE_TIME_CHEF_RUN=$(echo "$LOGS_INGEST_TIME" | grep message=ChefRun | grep "Message ingested successfully" | awk '{gsub(/ms/, "")} {print $(NF-1)}' |cut -d= -f2 | awk '{sum+=$1} END {print sum/NR}')
+aws cloudwatch put-metric-data $per_host_options --metric-name 5MinuteAverageIngestChefActionPipelineTime --unit Milliseconds --value ${INGEST_PIPELINE_TIME_CHEF_ACTION}
+aws cloudwatch put-metric-data $per_host_options --metric-name 5MinuteAverageIngestChefRunPipelineTime --unit Milliseconds --value ${INGEST_PIPELINE_TIME_CHEF_RUN}
 
 # Average ES insertion time (How long does ES takes to insert documents?)
 ES_DOC_INSERT_TIME=$(echo "$LOGS_ES_DOC_INSERT_TIME" | awk '{gsub(/ms/, "")} {print $(NF-1)}' |cut -d= -f2 | awk '{sum+=$1} END {print sum/NR}')
